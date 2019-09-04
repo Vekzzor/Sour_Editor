@@ -519,14 +519,14 @@ int main()
 		if (tools.getSelectedObject() != nullptr)
 		{
 			Polygon* object = tools.getSelectedObject();
-			sf::Vector2f pos = object->getPosition();
+			b2Vec2 pos = object->m_body->GetPosition();
 			
 			ImGui::Begin("SelectedObject");
-			ImGui::SliderFloat("X", &pos.x, -10000, 10000.0f);
-			ImGui::SliderFloat("Y", &pos.y, -10000, 10000.0f);
-			if (pos != object->getPosition())
+			ImGui::SliderFloat("X", &pos.x, -10, 10.0f);
+			ImGui::SliderFloat("Y", &pos.y, -10, 10.0f);
+			if (pos != object->m_body->GetPosition())
 			{
-				object->m_body->SetTransform({ pos.x,pos.y }, object->m_body->GetAngle());
+				object->m_body->SetTransform(pos, object->m_body->GetAngle());
 				object->m_body->SetAwake(true);
 			}
 			ImGui::End();
