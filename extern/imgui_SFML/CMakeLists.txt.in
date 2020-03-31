@@ -1,0 +1,28 @@
+﻿# CMakeList.txt : CMake project for Mustig_Engine, include source and define
+# project specific logic here.
+#
+cmake_minimum_required (VERSION 3.8)
+
+add_library(IMGUI)
+# Add source to this project's executable.
+target_sources(IMGUI
+	PRIVATE
+	./imconfig.h
+	./imgui.h
+	./imgui.cpp
+    ./imgui_demo.cpp
+	./imgui_draw.cpp
+	./imgui_internal.h
+	./imgui_widgets.cpp
+	./imgui-SFML.h
+	./imgui-SFML.cpp
+	./imgui-SFML_export.h
+	./imstb_rectpack.h
+	./imstb_textedit.h
+	./imstb_truetype.h
+)
+
+target_include_directories(IMGUI PRIVATE ${SFML_DIR}/include)
+
+target_link_libraries(IMGUI optimized ${SFML_DIR}/lib/sfml-graphics.lib)
+target_link_libraries(IMGUI debug ${SFML_DIR}/lib/sfml-graphics-d.lib)

@@ -1,0 +1,17 @@
+﻿# CMakeList.txt : CMake project for Mustig_Engine, include source and define
+# project specific logic here.
+#
+cmake_minimum_required (VERSION 3.8)
+
+add_library(DATA_STRUCTURES)
+# Add source to this project's executable.
+target_sources(DATA_STRUCTURES
+	PRIVATE
+	./DCELHE.h
+	./DCELHE.cpp
+)
+
+target_include_directories(DATA_STRUCTURES PRIVATE ${SFML_DIR}/include)
+
+target_link_libraries(DATA_STRUCTURES optimized ${SFML_DIR}/lib/sfml-graphics.lib)
+target_link_libraries(DATA_STRUCTURES debug ${SFML_DIR}/lib/sfml-graphics-d.lib)
