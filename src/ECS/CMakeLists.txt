@@ -33,5 +33,7 @@ target_include_directories(ECS PRIVATE ${SFML_DIR}/include ${INCLUDE_DIR}/ECS)
 target_link_libraries(ECS optimized ${SFML_DIR}/lib/sfml-graphics.lib)
 target_link_libraries(ECS debug ${SFML_DIR}/lib/sfml-graphics-d.lib)
 
+set_property(TARGET ECS PROPERTY CXX_STANDARD 17)
+
 source_group("Source Files" FILES ${ECS_SOURCE_FILES})
 source_group("Header Files" FILES ${ECS_HEADER_FILES})

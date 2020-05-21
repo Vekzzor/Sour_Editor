@@ -11,20 +11,20 @@ EventHandler* EventHandler::Instance()
 	return &instance;
 }
 
-void EventHandler::handleEvents(sf::Window& _window)
+void EventHandler::HandleEvents(sf::Window& _window)
 {
 	sf::Event event;
 	ImGuiIO& io		 = ImGui::GetIO();
 	InputMapping* IM = InputMapping::Instance();
-	IM->resetTemporaryData();
-	InputMapping::KeyTransitionMap& kPT = IM->getKeyPressTransitions();
-	InputMapping::KeyTransitionMap& kRT = IM->getKeyReleaseTransitions();
-	InputMapping::KeyMap& kS			= IM->getKeyStates();
+	IM->ResetTemporaryData();
+	InputMapping::KeyTransitionMap& kPT = IM->GetKeyPressTransitions();
+	InputMapping::KeyTransitionMap& kRT = IM->GetKeyReleaseTransitions();
+	InputMapping::KeyMap& kS			= IM->GetKeyStates();
 
 	InputMapping::FunctionKeyMap::iterator itKeyboard;
 	InputMapping::FunctionMouseMap::iterator itMouse;
-	std::map<int, InputMapping::KeyTransition>& mKT = IM->getMouseKeyTransitions();
-	InputMapping::MouseKeyMap& mKS					= IM->getMouseKeyStates();
+	std::map<int, InputMapping::KeyTransition>& mKT = IM->GetMouseKeyTransitions();
+	InputMapping::MouseKeyMap& mKS					= IM->GetMouseKeyStates();
 	InputMapping::KeyModifiers modifier;
 	while(_window.pollEvent(event))
 	{
@@ -39,10 +39,10 @@ void EventHandler::handleEvents(sf::Window& _window)
 						event.key.system << 3);
 
 			kPT[event.key.code] = event.key;
-			kS[event.key.code]  = std::make_pair(InputMapping::KeyState::Pressed, modifier);
+			kS[event.key.code]  = std::make_pair(InputMapping::KeyState::kPressed, modifier);
 
-			itKeyboard = IM->getFunctionPressMap().find(std::make_pair(event.key.code, modifier));
-			if(itKeyboard != IM->getFunctionPressMap().end())
+			itKeyboard = IM->GetFunctionPressMap().find(std::make_pair(event.key.code, modifier));
+			if(itKeyboard != IM->GetFunctionPressMap().end())
 				itKeyboard->second();
 			break;
 		case sf::Event::KeyReleased:
@@ -50,12 +50,12 @@ void EventHandler::handleEvents(sf::Window& _window)
 						event.key.system << 3);
 
 			kRT[event.key.code] = event.key;
-			kS[event.key.code]  = std::make_pair(InputMapping::KeyState::Released,
-												 InputMapping::KeyModifierFlags::None);
+			kS[event.key.code]  = std::make_pair(InputMapping::KeyState::kReleased,
+												 InputMapping::KeyModifierFlags::kNone);
 			//VOLATILE
-			itKeyboard = IM->getFunctionReleaseMap().find(
-				std::make_pair(event.key.code, InputMapping::KeyModifierFlags::None));
-			if(itKeyboard != IM->getFunctionReleaseMap().end())
+			itKeyboard = IM->GetFunctionReleaseMap().find(
+				std::make_pair(event.key.code, InputMapping::KeyModifierFlags::kNone));
+			if(itKeyboard != IM->GetFunctionReleaseMap().end())
 				itKeyboard->second();
 			break;
 		case sf::Event::MouseButtonPressed:
@@ -64,13 +64,13 @@ void EventHandler::handleEvents(sf::Window& _window)
 			modifier = (kS[sf::Keyboard::LAlt].first << 0 | kS[sf::Keyboard::LControl].first << 1 |
 						kS[sf::Keyboard::LShift].first << 2 | kS[sf::Keyboard::LSystem].first << 3);
 
-			mKT[event.mouseButton.button] = InputMapping::KeyTransition::Press;
+			mKT[event.mouseButton.button] = InputMapping::KeyTransition::kPress;
 			mKS[event.mouseButton.button] =
-				std::make_pair(InputMapping::KeyState::Pressed, modifier);
+				std::make_pair(InputMapping::KeyState::kPressed, modifier);
 
-			itMouse = IM->getFunctionMousePressMap().find(
+			itMouse = IM->GetFunctionMousePressMap().find(
 				std::make_pair(event.mouseButton.button, modifier));
-			if(itMouse != IM->getFunctionMousePressMap().end())
+			if(itMouse != IM->GetFunctionMousePressMap().end())
 				itMouse->second();
 			break;
 		case sf::Event::MouseButtonReleased:
@@ -78,27 +78,27 @@ void EventHandler::handleEvents(sf::Window& _window)
 				break;
 			//modifier = (kS[sf::Keyboard::LAlt].first << 0 | kS[sf::Keyboard::LControl].first << 1 | kS[sf::Keyboard::LShift].first << 2 | kS[sf::Keyboard::LSystem].first << 3);
 
-			mKT[event.mouseButton.button] = InputMapping::KeyTransition::Release;
-			mKS[event.mouseButton.button] = std::make_pair(InputMapping::KeyState::Released,
-														   InputMapping::KeyModifierFlags::None);
+			mKT[event.mouseButton.button] = InputMapping::KeyTransition::kRelease;
+			mKS[event.mouseButton.button] = std::make_pair(InputMapping::KeyState::kReleased,
+														   InputMapping::KeyModifierFlags::kNone);
 
 			//VOLATILE
-			itMouse = IM->getFunctionMouseReleaseMap().find(
-				std::make_pair(event.mouseButton.button, InputMapping::KeyModifierFlags::None));
-			if(itMouse != IM->getFunctionMouseReleaseMap().end())
+			itMouse = IM->GetFunctionMouseReleaseMap().find(
+				std::make_pair(event.mouseButton.button, InputMapping::KeyModifierFlags::kNone));
+			if(itMouse != IM->GetFunctionMouseReleaseMap().end())
 				itMouse->second();
 			break;
 		case sf::Event::MouseMoved:
 			if(io.WantCaptureMouse)
 				break;
-			IM->setMouseMoved(true);
-			IM->setMousePos(event.mouseMove.x, event.mouseMove.y);
+			IM->SetMouseMoved(true);
+			IM->SetMousePos(event.mouseMove.x, event.mouseMove.y);
 			break;
 		case sf::Event::MouseWheelScrolled:
 			if(io.WantCaptureMouse)
 				break;
-			IM->setMouseScrolling(true);
-			IM->setMouseScrollDelta(event.mouseWheelScroll.delta);
+			IM->SetMouseScrolling(true);
+			IM->SetMouseScrollDelta(event.mouseWheelScroll.delta);
 			break;
 		}
 	}

@@ -5,22 +5,22 @@ class InputMapping
 public:
 	enum KeyTransition
 	{
-		Unknown,
-		Press,
-		Release
+		kUnknown,
+		kPress,
+		kRelease
 	};
 	enum KeyState
 	{
-		Released,
-		Pressed
+		kReleased,
+		kPressed
 	};
 	enum KeyModifierFlags // : unsigned char
 	{
-		None	= 0,
-		Alt		= 1 << 0,
-		Control = 1 << 1,
-		Shift   = 1 << 2,
-		System  = 1 << 3,
+		kNone	= 0,
+		kAlt		= 1 << 0,
+		kControl = 1 << 1,
+		kShift   = 1 << 2,
+		kSystem  = 1 << 3,
 	};
 	typedef unsigned int KeyModifiers;
 	typedef std::pair<KeyState, KeyModifiers> KeyStateModifierPair;
@@ -36,139 +36,143 @@ public:
 	~InputMapping();
 	static InputMapping* Instance();
 	//KEYBOARD
-	KeyStateModifierPair getKeyState(int _key);
-	sf::Event::KeyEvent getKeyPressTransition(int _key, KeyModifiers Mod = KeyModifierFlags::None);
-	sf::Event::KeyEvent getKeyReleaseTransition(int _key,
-												KeyModifiers Mod = KeyModifierFlags::None);
+	KeyStateModifierPair GetKeyState(int _key);
+	sf::Event::KeyEvent GetKeyPressTransition(int _key, KeyModifiers _modifiers = KeyModifierFlags::kNone);
+	sf::Event::KeyEvent GetKeyReleaseTransition(int _key,
+												KeyModifiers _modifiers = KeyModifierFlags::kNone);
 	const bool EmptyKeyPressTransistion() const
 	{
-		return m_keyPressTransition.empty();
+		return key_press_transition_.empty();
 	};
 	const bool EmptyKeyReleaseTransistion() const
 	{
-		return m_keyReleaseTransition.empty();
+		return key_release_transition_.empty();
 	};
 	//MOUSE
-	KeyStateModifierPair getMouseKeyState(int _key);
-	KeyTransition getMouseKeyTransition(int _key);
+	KeyStateModifierPair GetMouseKeyState(int _key);
+	KeyTransition GetMouseKeyTransition(int _key);
 
 	const bool EmptyMouseKeyTransistion() const
 	{
-		return m_mouseKeyTransition.empty();
+		return mouse_key_transition_.empty();
 	};
-	const std::pair<int, int> getMousePos() const
+	const std::pair<int, int> GetMousePos() const
 	{
-		return m_mousePos;
+		return mouse_pos_;
 	};
-	const float getMouseScrollDelta() const
+	const std::pair<int, int> GetMousePosDelta() const
 	{
-		return m_mouseScrollDelta;
+		return mouse_pos_delta_;
 	};
-	const bool isMouseMoving() const
+	const float GetMouseScrollDelta() const
 	{
-		return m_mouseMoved;
+		return mouse_scroll_delta_;
 	};
-	const bool isMouseScrolling() const
+	const bool IsMouseMoving() const
 	{
-		return m_mouseScrolling;
+		return mouse_moved_;
+	};
+	const bool IsMouseScrolling() const
+	{
+		return mouse_scrolling_;
 	};
 
-	void addFunctionToKey(std::function<void()> _f,
+	void AddFunctionToKey(std::function<void()> _f,
 						  sf::Keyboard::Key _key,
-						  KeyState _triggerState  = KeyState::Pressed,
-						  KeyModifiers _modifiers = KeyModifierFlags::None);
-	void addFunctionToMouseKey(std::function<void()> _f,
+						  KeyState _triggerState  = KeyState::kPressed,
+						  KeyModifiers _modifiers = KeyModifierFlags::kNone);
+	void AddFunctionToMouseKey(std::function<void()> _f,
 							   sf::Mouse::Button _key,
-							   KeyState _triggerState  = KeyState::Pressed,
-							   KeyModifiers _modifiers = KeyModifierFlags::None);
+							   KeyState _triggerState  = KeyState::kPressed,
+							   KeyModifiers _modifiers = KeyModifierFlags::kNone);
 
 protected:
 	friend class EventHandler;
 	//KEYBOARD
-	KeyTransitionMap& getKeyPressTransitions()
+	KeyTransitionMap& GetKeyPressTransitions()
 	{
-		return m_keyPressTransition;
+		return key_press_transition_;
 	};
-	KeyTransitionMap& getKeyReleaseTransitions()
+	KeyTransitionMap& GetKeyReleaseTransitions()
 	{
-		return m_keyReleaseTransition;
+		return key_release_transition_;
 	};
-	KeyMap& getKeyStates()
+	KeyMap& GetKeyStates()
 	{
-		return m_keyMap;
+		return key_map_;
 	};
 
 	//MOUSE
-	std::map<int, KeyTransition>& getMouseKeyTransitions()
+	std::map<int, KeyTransition>& GetMouseKeyTransitions()
 	{
-		return m_mouseKeyTransition;
+		return mouse_key_transition_;
 	};
-	MouseKeyMap& getMouseKeyStates()
+	MouseKeyMap& GetMouseKeyStates()
 	{
-		return m_mouseKeyMap;
+		return mouse_key_map_;
 	};
-	void setMousePos(int x, int y)
+	void SetMousePos(int x, int y)
 	{
-		m_mousePos		= std::make_pair(x, y);
-		m_mousePosDelta = std::make_pair(x - m_mousePos.first, y - m_mousePos.second);
+		mouse_pos_delta_ = std::make_pair(x - mouse_pos_.first, y - mouse_pos_.second);
+		mouse_pos_		= std::make_pair(x, y);
 	};
-	void setMouseScrollDelta(float _delta)
+	void SetMouseScrollDelta(float _delta)
 	{
-		m_mouseScrollDelta = _delta;
+		mouse_scroll_delta_ = _delta;
 	};
-	void setMouseScrolling(bool _moved)
+	void SetMouseScrolling(bool _moved)
 	{
-		m_mouseScrolling = _moved;
+		mouse_scrolling_ = _moved;
 	};
-	void setMouseMoved(bool _moved)
+	void SetMouseMoved(bool _moved)
 	{
-		m_mouseMoved = _moved;
+		mouse_moved_ = _moved;
 	};
 
 	//UTILITY
-	void resetTemporaryData();
-	FunctionKeyMap& getFunctionPressMap()
+	void ResetTemporaryData();
+	FunctionKeyMap& GetFunctionPressMap()
 	{
-		return m_functionOnPressMap;
+		return function_on_press_map_;
 	};
-	FunctionKeyMap& getFunctionReleaseMap()
+	FunctionKeyMap& GetFunctionReleaseMap()
 	{
-		return m_functionOnReleaseMap;
+		return function_on_release_map_;
 	};
 
-	FunctionMouseMap& getFunctionMousePressMap()
+	FunctionMouseMap& GetFunctionMousePressMap()
 	{
-		return m_functionOnMousePressMap;
+		return function_on_mouse_press_map_;
 	};
-	FunctionMouseMap& getFunctionMouseReleaseMap()
+	FunctionMouseMap& GetFunctionMouseReleaseMap()
 	{
-		return m_functionOnMouseReleaseMap;
+		return function_on_mouse_release_map_;
 	};
 
 private:
-	KeyTransitionMap m_keyPressTransition;
-	KeyTransitionMap m_keyReleaseTransition;
+	KeyTransitionMap key_press_transition_;
+	KeyTransitionMap key_release_transition_;
 
-	KeyMap m_keyMap;
+	KeyMap key_map_;
 
-	std::map<int, KeyTransition> m_mouseKeyTransition;
-	MouseKeyMap m_mouseKeyMap;
+	std::map<int, KeyTransition> mouse_key_transition_;
+	MouseKeyMap mouse_key_map_;
 
-	std::pair<int, int> m_mousePos{0, 0};
-	std::pair<int, int> m_mousePosDelta{0, 0};
-	bool m_mouseMoved		 = false;
-	float m_mouseScrollDelta = 0;
-	bool m_mouseScrolling	= false;
+	std::pair<int, int> mouse_pos_{0, 0};
+	std::pair<int, int> mouse_pos_delta_{0, 0};
+	bool mouse_moved_		 = false;
+	float mouse_scroll_delta_ = 0;
+	bool mouse_scrolling_	= false;
 
-	FunctionKeyMap m_functionOnPressMap;
-	FunctionKeyMap m_functionOnReleaseMap;
+	FunctionKeyMap function_on_press_map_;
+	FunctionKeyMap function_on_release_map_;
 
-	FunctionMouseMap m_functionOnMousePressMap;
-	FunctionMouseMap m_functionOnMouseReleaseMap;
+	FunctionMouseMap function_on_mouse_press_map_;
+	FunctionMouseMap function_on_mouse_release_map_;
 
-	std::map<std::pair<int, KeyState>, std::function<void()>> m_functionMap;
+	std::map<std::pair<int, KeyState>, std::function<void()>> function_map_;
 
 	//AddFunctionToAction   ---an Action can hold multiple functions, use linked list to iterate through?
 	//AddActionToKey -- Could be stored in an ini config file
-	//Additional note: how do we solve actions for multiple context? each key stores one action for several contexts?
+	//Additional note: how do we solve actions for multiple context? each key stores one action for several contexts? <- send events
 };

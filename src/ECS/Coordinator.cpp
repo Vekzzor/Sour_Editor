@@ -38,3 +38,8 @@ void Coordinator::DestroyEntity(Entity entity)
 
 	mSystemManager->EntityDestroyed(entity);
 }
+
+uint32_t Coordinator::getEntityCount()
+{
+	return mEntityManager->getEntityCount();
+}

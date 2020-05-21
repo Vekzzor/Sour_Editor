@@ -71,6 +71,11 @@ public:
 		return mComponentArray[mEntityToIndexMap[entity]];
 	}
 
+	bool HasComponent(Entity entity)
+	{
+		return (mEntityToIndexMap.find(entity) != mEntityToIndexMap.end());
+	}
+
 	void EntityDestroyed(Entity entity) override
 	{
 		if (mEntityToIndexMap.find(entity) != mEntityToIndexMap.end())

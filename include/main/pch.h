@@ -34,18 +34,26 @@
 #include "EventHandler.h"
 #include "InputMapping.h"
 #include "PhysicsSystem.h"
+#include "RenderSystem.h"
 #include "imgui_SFML/imgui-SFML.h"
 #include "imgui_SFML/imgui.h"
 #include <Box2D/box2d.h>
 #include <SFML/Graphics.hpp>
+#include "Inspector.h"
+#include "Components.h"
+#include "Voronoi_Tessellation.h"
+#pragma warning( disable : 4244 )
+#pragma warning( disable : 4267 )
 
-typedef std::array<float, 2> float2;
-static const int pixelToMeterRatio = 10000;
+static const int kPixelToMeterRatio = 10000;
+//Source hammer unit == 1.904 cm, 1 m == 52.52 hammer units
+static const float kUnitScale = 52.52;
+#define Sour_PI 3.14159265359f
 
 template <class Container, class F>
-auto erase_where(Container& c, F&& f, int offset = 0)
+auto erase_where(Container& _c, F&& _f, int _offset = 0)
 {
-	return c.erase(std::remove_if(c.begin() + offset, c.end(), std::forward<F>(f)), c.end());
+	return _c.erase(std::remove_if(_c.begin() + _offset, _c.end(), std::forward<F>(_f)), _c.end());
 }
 
 #ifdef _DEBUG
@@ -60,3 +68,59 @@ auto erase_where(Container& c, F&& f, int offset = 0)
 // TODO: add headers that you want to pre-compile here
 
 #endif //PCH_H
+
+
+/*Google naming conventions
+Optimize for readability using names that would be clear even to people on a different team.
+
+File names: 
+my_useful_class.cc <- prefer if no consisten local pattern
+my-useful-class.cc
+myusefulclass.cc
+
+Type Names: classes, structs, type aliases, enums, and type template parameters
+Capital each word, no underscores
+class UrlTable { ...
+class UrlTableTester { ...
+struct UrlTableProperties { ...
+
+Variable names:all lowercase with underscores between words
+	Common Variable names: 
+		std::string table_name;
+
+	Class Data Members: 
+		add trailing underscore
+			std::string table_name_; 
+
+	Struct Data Members:  
+		same as common variable names
+
+	Constant Names: 
+		start with lowercase k 
+			const int kDaysInAWeek = 7;
+		underscores can be used when capitalization cannot be used for seperation
+			const int kAndroid8_0_0 = 24;  // Android 8.0.0
+
+	Function Names: 
+		Regular functions have mixed case; accessors and mutators may be named like variables.
+			AddTableEntry()
+			DeleteUrl()
+			OpenFileOrDie()
+	Enum Names:
+		Enumerators (for both scoped and unscoped enums) should be named either like constants or like macros: either kEnumName or ENUM_NAME.
+			enum UrlTableErrors {
+				kOk = 0,
+				kErrorOutOfMemory,
+				kErrorMalformedInput,
+			};
+			enum AlternateUrlTableErrors {
+			  OK = 0,
+			  OUT_OF_MEMORY = 1,
+			  MALFORMED_INPUT = 2,
+			};
+*/
+
+/*Additional Conventions
+	Function parameters starts with a _
+		_variable
+*/

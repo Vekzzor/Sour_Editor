@@ -19,6 +19,7 @@ private:
 									  HALF_EDGE::HE_Edge* edge,
 									  std::map<HALF_EDGE::HE_Face*, bool>& intersections,
 									  std::vector<HALF_EDGE::HE_Edge*>& edges);
+
 	//wrapper for erase function
 	template <class Container, class F>
 	static auto erase_where(Container& c, F&& f, int offset = 0)

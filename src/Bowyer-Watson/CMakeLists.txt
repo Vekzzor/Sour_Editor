@@ -29,5 +29,7 @@ target_include_directories(DELAUNAY_TRIANGULATION
 target_link_libraries(DELAUNAY_TRIANGULATION optimized ${SFML_DIR}/lib/sfml-graphics.lib)
 target_link_libraries(DELAUNAY_TRIANGULATION debug ${SFML_DIR}/lib/sfml-graphics-d.lib)
 
+set_property(TARGET DELAUNAY_TRIANGULATION PROPERTY CXX_STANDARD 17)
+
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${DEL_TRI_SOURCE_FILES})
 source_group(TREE ${INCLUDE_DIR}/Bowyer-Watson FILES ${DEL_TRI_HEADER_FILES})

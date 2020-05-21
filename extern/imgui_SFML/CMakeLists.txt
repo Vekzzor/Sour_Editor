@@ -22,4 +22,6 @@ target_include_directories(imgui_SFML PUBLIC .. ${SFML_DIR}/include)
 target_link_libraries(imgui_SFML optimized ${SFML_DIR}/lib/sfml-graphics.lib)
 target_link_libraries(imgui_SFML debug ${SFML_DIR}/lib/sfml-graphics-d.lib)
 
+set_property(TARGET imgui_SFML PROPERTY CXX_STANDARD 17)
+
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${IMGUI_SOURCE_FILES} ${IMGUI_HEADER_FILES})

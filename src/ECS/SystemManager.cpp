@@ -18,7 +18,7 @@ void SystemManager::EntityDestroyed(Entity entity)
 	{
 		auto const& system = pair.second;
 
-		system->mEntities.erase(entity);
+		system->entities_.erase(entity);
 	}
 }
 
@@ -34,12 +34,12 @@ void SystemManager::EntitySignatureChanged(Entity entity, Signature entitySignat
 		// Entity signature matches system signature - insert into set
 		if ((entitySignature & systemSignature) == systemSignature)
 		{
-			system->mEntities.insert(entity);
+			system->entities_.insert(entity);
 		}
 		// Entity signature does not match system signature - erase from set
 		else
 		{
-			system->mEntities.erase(entity);
+			system->entities_.erase(entity);
 		}
 	}
 }

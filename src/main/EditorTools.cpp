@@ -3,160 +3,143 @@
 
 EditorTools::EditorTools()
 {
-
-	objectSelection.setOutlineColor(sf::Color::Yellow);
-	objectSelection.setFillColor(sf::Color::Transparent);
+	object_selection_.setOutlineColor(sf::Color::Yellow);
+	object_selection_.setFillColor(sf::Color::Transparent);
 }
 
 EditorTools::~EditorTools() {}
 
-void EditorTools::updateCurrentTool()
+void EditorTools::UpdateCurrentTool()
 {
-	if(cTool == Tool::SelectBox)
+	if(current_tool_ == Tool::kSelectBox)
 	{
-		float offset = pow(10, grid.zoomLevel - 2) / 10;
-		if(selectedEntity != -1)
+		float offset = pow(10, grid_.zoom_level_ - 2) / 10;
+		if(selected_entity_ != -1)
 		{
 			Coordinator& coordinator = gCoordinator.GetInstance();
-			Polygon& poly			 = coordinator.GetComponent<Polygon>(selectedEntity);
-			//auto float2Conversion = [](float2 value) { return sf::Vector2f(value[0], value[1]); };
-			//sf::Vector2f lowerBound = float2Conversion(selectedObject->AABB_lowerBounds);
-			//sf::Vector2f upperBound = float2Conversion(selectedObject->AABB_upperBounds);
-
-			/*objectSelection.setPoint(0, lowerBound + sf::Vector2f(-offset / 5, -offset / 5));
-			objectSelection.setPoint(1, sf::Vector2f(lowerBound.x, upperBound.y) + sf::Vector2f(-offset / 5, offset / 5));
-			objectSelection.setPoint(2, upperBound + sf::Vector2f(offset / 5, offset / 5));
-			objectSelection.setPoint(3, sf::Vector2f(upperBound.x, lowerBound.y) + sf::Vector2f(offset / 5, -offset / 5));*/
-			objectSelection.setPosition(poly.getPosition());
-			objectSelection.setOutlineThickness(-offset / 5);
-			//objectSelection.setScale(sf::Vector2f(1.05f, 1.05f));
-			objectSelection.setRotation(poly.getRotation());
+			Mesh2D& poly	= coordinator.GetComponent<Mesh2D>(selected_entity_);
+			sf::Transformable& transform =
+				coordinator.GetComponent<sf::Transformable>(selected_entity_);
+			object_selection_.setPosition(transform.getPosition());
+			object_selection_.setOutlineThickness(-offset / 5);
+			object_selection_.setRotation(transform.getRotation());
 		}
 	}
 }
 
-void EditorTools::inspectSelectedObject()
+void EditorTools::StartDrag(sf::Vector2f _pos)
 {
-	ImGuiIO& io = ImGui::GetIO();
+	drag_start_ = _pos;
 }
 
-void EditorTools::startDrag(sf::Vector2f pos)
+sf::ConvexShape EditorTools::SelectionBox(sf::Vector2f _pos)
 {
-	dragStart = pos;
-}
-
-sf::ConvexShape EditorTools::selectionBox(sf::Vector2f pos)
-{
-	float offset = pow(10, grid.zoomLevel - 2) / 10;
+	float offset = pow(10, grid_.zoom_level_ - 2) / 10;
 	sf::ConvexShape shape;
 	shape.setPointCount(4);
-	shape.setPoint(0, this->dragStart);
-	shape.setPoint(1, sf::Vector2f(pos.x, this->dragStart.y));
-	shape.setPoint(2, pos);
-	shape.setPoint(3, sf::Vector2f(this->dragStart.x, pos.y));
+	shape.setPoint(0, this->drag_start_);
+	shape.setPoint(1, sf::Vector2f(_pos.x, this->drag_start_.y));
+	shape.setPoint(2, _pos);
+	shape.setPoint(3, sf::Vector2f(this->drag_start_.x, _pos.y));
 	shape.setOutlineThickness(-offset / 5);
 	shape.setOutlineColor(sf::Color::Red);
 	shape.setFillColor(sf::Color::Transparent);
 	return shape;
 }
 
-void EditorTools::createObjectSelectedBorder()
+void EditorTools::CreateObjectSelectedBorder()
 {
 	Coordinator& coordinator = gCoordinator.GetInstance();
-	Polygon& poly			 = coordinator.GetComponent<Polygon>(selectedEntity);
-	float offset			 = pow(10, grid.zoomLevel - 2) / 10;
-	objectSelection.setPointCount(poly.m_vertices.size());
-	int i = 0;
-	for(auto& vertex : poly.m_vertices)
+	if (coordinator.HasComponent<Mesh2D>(selected_entity_))
 	{
-		objectSelection.setPoint(i, vertex.position);
-		i++;
+		Mesh2D& poly = coordinator.GetComponent<Mesh2D>(selected_entity_);
+		float offset = pow(10, grid_.zoom_level_ - 2) / 10;
+		object_selection_.setPointCount(poly.vertices.size());
+		for(int i = 0; i < poly.vertices.size(); i++)
+		{
+			object_selection_.setPoint(i, poly.vertices[i].position);
+		}
 	}
 }
 
-void EditorTools::addBox(b2World& world, std::vector<Polygon>& _boxes, sf::Vector2f pos)
+void EditorTools::AddBox(b2World& _world,
+						 PhysicsSystem _system,
+						 std::vector<Mesh2D>& _boxes,
+						 sf::Vector2f _pos)
 {
-	if(pos.x != this->dragStart.x && pos.y != this->dragStart.y)
+	if(_pos.x != this->drag_start_.x && _pos.y != this->drag_start_.y)
 	{
-		Polygon shape(world);
+		Mesh2D shape;
 		sf::Vertex vertices[6];
-		vertices[0].position = this->dragStart;
+		vertices[0].position = this->drag_start_;
 		vertices[0].color	= sf::Color::Cyan;
-		vertices[1].position = sf::Vector2f(pos.x, this->dragStart.y);
+		vertices[1].position = sf::Vector2f(_pos.x, this->drag_start_.y);
 		vertices[1].color	= sf::Color::Cyan;
-		vertices[2].position = pos;
+		vertices[2].position = _pos;
 		vertices[2].color	= sf::Color::Cyan;
-		vertices[3].position = pos;
+		vertices[3].position = _pos;
 		vertices[3].color	= sf::Color::Cyan;
-		vertices[4].position = sf::Vector2f(this->dragStart.x, pos.y);
+		vertices[4].position = sf::Vector2f(this->drag_start_.x, _pos.y);
 		vertices[4].color	= sf::Color::Cyan;
-		vertices[5].position = this->dragStart;
+		vertices[5].position = this->drag_start_;
 		vertices[5].color	= sf::Color::Green;
 		for(auto& vertex : vertices)
-			shape.m_vertices.push_back(vertex);
-		shape.AABB_lowerBounds = {this->dragStart.x, this->dragStart.y};
-		shape.AABB_upperBounds = {pos.x, pos.y};
-		shape.createPhysicsBody();
-
+			shape.vertices.push_back(vertex);
+		//_system.CreatePhysicsBodyFromPolygon(world, shape);
 		_boxes.push_back(shape);
 	}
 }
 
-void Grid::addGridLevel(int level) {}
+void Grid::AddGridLevel(int _level) {}
 
 Grid::Grid() {}
 
-Grid::Grid(const sf::View& view)
+Grid::Grid(const sf::View& _view)
 {
-	createGrid();
+	CreateGrid();
 }
 
-void Grid::Init(const sf::View& view)
+void Grid::Init(const sf::View& _view)
 {
-	createGrid();
+	CreateGrid();
 }
 
 Grid::~Grid()
 {
-	m_vertices.clear();
+	vertices_.clear();
 }
 
-void Grid::updateGrid(const sf::View& view)
+void Grid::UpdateGrid(const sf::View& _view)
 {
-	float offset = pow(10, zoomLevel) / 10;
-	sf::Vector2f pos(view.getCenter().x / offset, view.getCenter().y / offset);
+	float offset = pow(10, zoom_level_) / 10;
+	sf::Vector2f pos(_view.getCenter().x / offset, _view.getCenter().y / offset);
 	this->setPosition(round(pos.x) * offset - (offset * 6), round(pos.y) * offset - (offset * 6));
 
-	if(view.getSize().x >= maxLevelThreshold)
+	if(_view.getSize().x >= max_level_threshold_)
 	{
-		zoomLevel++;
-		m_vertices.clear();
-		minLevelThreshold = maxLevelThreshold;
-		maxLevelThreshold = pow(10, zoomLevel);
-		createGrid();
+		zoom_level_++;
+		vertices_.clear();
+		min_level_threshold_ = max_level_threshold_;
+		max_level_threshold_ = pow(10, zoom_level_);
+		CreateGrid();
 	}
-
-	else if(view.getSize().x < minLevelThreshold)
+	else if(_view.getSize().x < min_level_threshold_)
 	{
-		zoomLevel--;
-		m_vertices.clear();
-		maxLevelThreshold = minLevelThreshold;
-		minLevelThreshold = pow(10, zoomLevel - 1);
-		createGrid();
+		zoom_level_--;
+		vertices_.clear();
+		max_level_threshold_ = min_level_threshold_;
+		min_level_threshold_ = pow(10, zoom_level_ - 1);
+		CreateGrid();
 	}
 	for(int i = 0; i < 480; i++)
 	{
-		m_vertices[i].color.a = std::max(5.0f, 150 - (view.getSize().x / maxLevelThreshold) * 140);
+		vertices_[i].color.a = std::max(5.0f, 150 - (_view.getSize().x / max_level_threshold_) * 140);
 	}
-	//for (int i = 220; i < 440; i++)
-	//{
-	//	m_vertices[i].color.a = std::max(5.0f, 150 - (view.getSize().x / maxLevelThreshold) * 150);
-	//}
 }
 
-void Grid::createGrid()
+void Grid::CreateGrid()
 {
-	float offset = pow(10, zoomLevel - 1) / 10;
+	float offset = pow(10, zoom_level_ - 1) / 10;
 	for(int i = 0; i < 120; i++)
 	{
 		sf::Vertex v1;
@@ -165,22 +148,22 @@ void Grid::createGrid()
 		v2.color = sf::Color(255, 255, 255, 100);
 		//Horizontal
 		v1.position.x = i * offset;
-		v1.position.y = -MAX_GRID_OFFSET;
+		v1.position.y = -kMaxGridOffset_;
 		v2.position.x = i * offset;
-		v2.position.y = MAX_GRID_OFFSET;
-		m_vertices.push_back(v1);
-		m_vertices.push_back(v2);
+		v2.position.y = kMaxGridOffset_;
+		vertices_.push_back(v1);
+		vertices_.push_back(v2);
 
 		//Vertical
-		v1.position.x = -MAX_GRID_OFFSET;
+		v1.position.x = -kMaxGridOffset_;
 		v1.position.y = i * offset;
-		v2.position.x = MAX_GRID_OFFSET;
+		v2.position.x = kMaxGridOffset_;
 		v2.position.y = i * offset;
-		m_vertices.push_back(v1);
-		m_vertices.push_back(v2);
+		vertices_.push_back(v1);
+		vertices_.push_back(v2);
 	}
 
-	offset = pow(10, zoomLevel) / 10;
+	offset = pow(10, zoom_level_) / 10;
 	for(int i = 0; i < 120; i++)
 	{
 		sf::Vertex v1;
@@ -189,22 +172,22 @@ void Grid::createGrid()
 		v2.color = sf::Color(255, 255, 255, 180);
 		//Horizontal
 		v1.position.x = i * offset;
-		v1.position.y = -MAX_GRID_OFFSET;
+		v1.position.y = -kMaxGridOffset_;
 		v2.position.x = i * offset;
-		v2.position.y = MAX_GRID_OFFSET;
-		m_vertices.push_back(v1);
-		m_vertices.push_back(v2);
+		v2.position.y = kMaxGridOffset_;
+		vertices_.push_back(v1);
+		vertices_.push_back(v2);
 
 		//Vertical
-		v1.position.x = -MAX_GRID_OFFSET;
+		v1.position.x = -kMaxGridOffset_;
 		v1.position.y = i * offset;
-		v2.position.x = MAX_GRID_OFFSET;
+		v2.position.x = kMaxGridOffset_;
 		v2.position.y = i * offset;
-		m_vertices.push_back(v1);
-		m_vertices.push_back(v2);
+		vertices_.push_back(v1);
+		vertices_.push_back(v2);
 	}
 
-	offset = pow(10, zoomLevel + 1) / 10;
+	offset = pow(10, zoom_level_ + 1) / 10;
 	for(int i = 0; i < 120; i++)
 	{
 		sf::Vertex v1;
@@ -213,18 +196,18 @@ void Grid::createGrid()
 		v2.color = sf::Color(255, 255, 255, 255);
 		//Horizontal
 		v1.position.x = i * offset;
-		v1.position.y = -MAX_GRID_OFFSET;
+		v1.position.y = -kMaxGridOffset_;
 		v2.position.x = i * offset;
-		v2.position.y = MAX_GRID_OFFSET;
-		m_vertices.push_back(v1);
-		m_vertices.push_back(v2);
+		v2.position.y = kMaxGridOffset_;
+		vertices_.push_back(v1);
+		vertices_.push_back(v2);
 
 		//Vertical
-		v1.position.x = -MAX_GRID_OFFSET;
+		v1.position.x = -kMaxGridOffset_;
 		v1.position.y = i * offset;
-		v2.position.x = MAX_GRID_OFFSET;
+		v2.position.x = kMaxGridOffset_;
 		v2.position.y = i * offset;
-		m_vertices.push_back(v1);
-		m_vertices.push_back(v2);
+		vertices_.push_back(v1);
+		vertices_.push_back(v2);
 	}
 }

@@ -1,9 +1,10 @@
 #pragma once
 #include <Box2D/Box2D.h>
 #include <SFML/Graphics.hpp>
+#include "ECS/ECS.h"
 typedef std::array<float, 2> float2;
 
-class Polygon : public sf::Drawable, public sf::Transformable
+class Polygon/* : public sf::Drawable, public sf::Transformable*/
 {
 public:
 	Polygon();
@@ -14,9 +15,11 @@ public:
 	}
 	void createPhysicsBody(std::vector<b2Vec2>& vertices);
 	//#DEPRICATED
-	void createPhysicsBody();
+	//void createPhysicsBody();
 	void addFixtures() {}
-	void update();
+	//void update();
+
+
 	std::vector<sf::Vertex> m_vertices;
 	sf::CircleShape m_center;
 	sf::PrimitiveType m_type = sf::Triangles;
@@ -24,21 +27,15 @@ public:
 	sf::CircleShape m_lower;
 	sf::CircleShape m_upper;
 
-	float2 AABB_lowerBounds;
-	float2 AABB_upperBounds;
 	bool renderPoly		= true;
 	bool renderSite		= false;
 	bool renderVertices = false;
 	bool renderEdges	= false;
 
-	b2Body* m_body;
-	std::vector<b2Fixture*> m_fixtures;
-
-	//random fun stuff
-	float2 thrust = {0.0f,0.0f};
+	/*b2Body* m_body;
+	std::vector<b2Fixture*> m_fixtures;*/
 
 private:
-	virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
-	sf::Transform m_transformation;
+	//virtual void draw(sf::RenderTarget& target, sf::RenderStates states) const;
 	sf::Texture m_texture;
 };

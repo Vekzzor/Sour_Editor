@@ -2,6 +2,7 @@
 #include "ComponentArray.h"
 #include "ECS.h"
 
+
 class ComponentManager
 {
 private:
@@ -10,6 +11,8 @@ private:
 
 	// Map from type string pointer to a component array
 	std::unordered_map<const char*, std::shared_ptr<IComponentArray>> mComponentArrays{};
+
+	
 
 	// The component type to be assigned to the next registered component - starting at 0
 	ComponentType mNextComponentType{};
@@ -60,6 +63,13 @@ public:
 		return mComponentTypes[typeName];
 	}
 
+	void getComponentNames(std::vector<const char*>& _vec)
+	{
+		_vec.resize(mComponentTypes.size());
+		auto key_selector = [](auto pair) {return pair.first; };
+		std::transform(mComponentTypes.begin(), mComponentTypes.end(), _vec.begin(), key_selector);
+	}
+
 	template <typename T>
 	void AddComponent(Entity entity, T component)
 	{
@@ -79,6 +89,13 @@ public:
 	{
 		// Get a reference to a component from the array for an entity
 		return GetComponentArray<T>()->GetData(entity);
+	}
+
+	template <typename T>
+	bool HasComponent(Entity entity)
+	{
+		//Check if entity have component registred 
+		return GetComponentArray<T>()->HasComponent(entity);
 	}
 
 	void EntityDestroyed(Entity entity)

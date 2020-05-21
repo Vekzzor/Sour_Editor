@@ -3,15 +3,15 @@
 
 InputMapping::InputMapping()
 {
-	for(auto& key : m_keyMap)
+	for(auto& key : key_map_)
 	{
-		key.first  = KeyState::Released;
-		key.second = KeyModifierFlags::None;
+		key.first  = KeyState::kReleased;
+		key.second = KeyModifierFlags::kNone;
 	}
-	for(auto& button : m_mouseKeyMap)
+	for(auto& button : mouse_key_map_)
 	{
-		button.first  = KeyState::Released;
-		button.second = KeyModifierFlags::None;
+		button.first  = KeyState::kReleased;
+		button.second = KeyModifierFlags::kNone;
 	}
 }
 
@@ -23,71 +23,71 @@ InputMapping* InputMapping::Instance()
 	return &instance;
 }
 
-std::pair<InputMapping::KeyState, InputMapping::KeyModifiers> InputMapping::getKeyState(int _key)
+std::pair<InputMapping::KeyState, InputMapping::KeyModifiers> InputMapping::GetKeyState(int _key)
 {
-	return m_keyMap[_key];
+	return key_map_[_key];
 }
 
-sf::Event::KeyEvent InputMapping::getKeyPressTransition(int _key, KeyModifiers Mod)
+sf::Event::KeyEvent InputMapping::GetKeyPressTransition(int _key, KeyModifiers _modifiers)
 {
-	KeyTransitionMap::iterator it = m_keyPressTransition.find(_key);
+	KeyTransitionMap::iterator it = key_press_transition_.find(_key);
 
-	return (it != m_keyPressTransition.end())
+	return (it != key_press_transition_.end())
 			   ? it->second
 			   : sf::Event::KeyEvent{sf::Keyboard::Key::Unknown, 0, 0, 0};
 }
 
-sf::Event::KeyEvent InputMapping::getKeyReleaseTransition(int _key, KeyModifiers Mod)
+sf::Event::KeyEvent InputMapping::GetKeyReleaseTransition(int _key, KeyModifiers _modifiers)
 {
-	KeyTransitionMap::iterator it = m_keyReleaseTransition.find(_key);
+	KeyTransitionMap::iterator it = key_release_transition_.find(_key);
 
-	return (it != m_keyReleaseTransition.end())
+	return (it != key_release_transition_.end())
 			   ? it->second
 			   : sf::Event::KeyEvent{sf::Keyboard::Key::Unknown, 0, 0, 0};
 }
 
 std::pair<InputMapping::KeyState, InputMapping::KeyModifiers>
-InputMapping::getMouseKeyState(int _key)
+InputMapping::GetMouseKeyState(int _key)
 {
-	return m_mouseKeyMap[_key];
+	return mouse_key_map_[_key];
 }
 
-InputMapping::KeyTransition InputMapping::getMouseKeyTransition(int _key)
+InputMapping::KeyTransition InputMapping::GetMouseKeyTransition(int _key)
 {
-	std::map<int, KeyTransition>::iterator it = m_mouseKeyTransition.find(_key);
-	return (it != m_mouseKeyTransition.end()) ? it->second : KeyTransition::Unknown;
+	std::map<int, KeyTransition>::iterator it = mouse_key_transition_.find(_key);
+	return (it != mouse_key_transition_.end()) ? it->second : KeyTransition::kUnknown;
 }
 
-void InputMapping::addFunctionToKey(std::function<void()> _f,
+void InputMapping::AddFunctionToKey(std::function<void()> _f,
 									sf::Keyboard::Key _key,
 									KeyState _triggerState,
 									KeyModifiers _modifiers)
 {
-	if(_triggerState == InputMapping::Pressed)
-		m_functionOnPressMap[std::make_pair(_key, _modifiers)] = _f;
+	if(_triggerState == InputMapping::kPressed)
+		function_on_press_map_[std::make_pair(_key, _modifiers)] = _f;
 	else
-		m_functionOnReleaseMap[std::make_pair(_key, _modifiers)] = _f;
+		function_on_release_map_[std::make_pair(_key, _modifiers)] = _f;
 }
 
-void InputMapping::addFunctionToMouseKey(std::function<void()> _f,
+void InputMapping::AddFunctionToMouseKey(std::function<void()> _f,
 										 sf::Mouse::Button _key,
 										 KeyState _triggerState,
 										 KeyModifiers _modifiers)
 {
-	if(_triggerState == InputMapping::Pressed)
-		m_functionOnMousePressMap[std::make_pair(_key, _modifiers)] = _f;
+	if(_triggerState == InputMapping::kPressed)
+		function_on_mouse_press_map_[std::make_pair(_key, _modifiers)] = _f;
 	else
-		m_functionOnMouseReleaseMap[std::make_pair(_key, _modifiers)] = _f;
+		function_on_mouse_release_map_[std::make_pair(_key, _modifiers)] = _f;
 }
 
-void InputMapping::resetTemporaryData()
+void InputMapping::ResetTemporaryData()
 {
-	m_keyPressTransition.clear();
-	m_keyReleaseTransition.clear();
+	key_press_transition_.clear();
+	key_release_transition_.clear();
 
-	m_mouseKeyTransition.clear();
-	m_mousePosDelta	= std::make_pair(0, 0);
-	m_mouseMoved	   = false;
-	m_mouseScrollDelta = 0;
-	m_mouseScrolling   = false;
+	mouse_key_transition_.clear();
+	mouse_pos_delta_	= std::make_pair(0, 0);
+	mouse_moved_	   = false;
+	mouse_scroll_delta_ = 0;
+	mouse_scrolling_   = false;
 }

@@ -9,7 +9,7 @@ public:
 	~EventHandler();
 	static EventHandler* Instance();
 
-	void handleEvents(sf::Window& _window);
+	void HandleEvents(sf::Window& _window);
 
 private:
 };

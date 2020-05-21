@@ -72,10 +72,16 @@ namespace ImGui
 }
 */
 
+struct test
+{
+	float x, y;
+};
+
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Graphics/Color.hpp>
-
+#include "Box2D/include/box2d/b2_math.h"
 #include "imgui-SFML_export.h"
+#include <array>
 
 #define IM_VEC2_CLASS_EXTRA                                             \
     template <typename T>                                               \
@@ -87,7 +93,31 @@ namespace ImGui
     template <typename T>                                               \
     operator sf::Vector2<T>() const {                                   \
         return sf::Vector2<T>(x, y);                                    \
-    }
+    }																	\
+																		\
+	template <typename T>                                               \
+    ImVec2(const b2Vec2& v) {											\
+        x = v.x;														\
+        y = v.y;														\
+    }                                                                   \
+	template <typename T>                                               \
+	operator b2Vec2() const {											\
+			return b2Vec2(x,y);											\
+	}																	\
+																		\
+	template <typename T>                                               \
+    ImVec2(const std::array<T, 2>& v) {									\
+        x = v[0];														\
+        y = v[1];														\
+    }                                                                   \
+	template <typename T>                                               \
+	operator std::array<T, 2>() const {									\
+		return std::array<T, 2>{x,y};									\
+	}																	\
+																	
+
+
+
 
 #define IM_VEC4_CLASS_EXTRA                                             \
     ImVec4(const sf::Color & c)                                         \

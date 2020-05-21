@@ -24,6 +24,8 @@ public:
 
 	void DestroyEntity(Entity entity);
 
+	uint32_t getEntityCount();
+
 	// Component methods
 	template <typename T>
 	void RegisterComponent()
@@ -42,7 +44,17 @@ public:
 
 		mSystemManager->EntitySignatureChanged(entity, signature);
 	}
+	template <typename T>
+	bool HasComponent(Entity entity)
+	{
+		return mComponentManager->HasComponent<T>(entity);
+	}
 
+	void getComponentNames(std::vector<const char*>& _vec)
+	{
+		mComponentManager->getComponentNames(_vec);
+	}
+	
 	template <typename T>
 	void RemoveComponent(Entity entity)
 	{
